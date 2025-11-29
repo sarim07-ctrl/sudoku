@@ -1,0 +1,28 @@
+Initialize the Sudoku board, score, choice, and start the timer.
+Display the welcome message and the menu of options.
+Add random empty spaces in the board using the random function.
+Print the board and ask the user for a choice from the menu.
+
+If the user enters choice 1:
+Ask for row, column, and number.
+Check if the number entered is valid.
+If valid, update the board, increase score by 10, and print “correct”.
+Else, decrease score by 10 and print “incorrect”.
+
+If the user enters choice 2:
+Solve the current grid.
+Choose any empty cell and update it in the grid.
+Deduct 15 points from the score.
+
+If the user enters choice 3:
+Check if all Sudoku rules are satisfied (no repeated elements in any row, column, or 3×3 grid).
+If the board satisfies rules, print “board satisfies the rules”.
+Otherwise, print “board doesn’t follow the rules”.
+
+If the user enters choice 4:
+Solve the grid by backtracking.
+Print the solved board.
+Decrement the score by 20 and exit the loop.
+
+If the user enters choice 5:
+Display the quit message and exit the game loop.
