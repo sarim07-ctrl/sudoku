@@ -1,13 +1,13 @@
-#include<iostream>
-#include<conio.h>
-#include<ctime>
-#include<chrono>
+#include<iostream>   // For input and output (cout, cin)
+#include<conio.h>    // For _getch() to pause the screen output
+#include<ctime>      // For time() used in srand() for randomness
+#include<chrono>     // For measuring total play time
 using namespace std;
 int grid[9][9] =
 {
     {5, 3, 4, 6, 7, 8, 9, 1, 2},
     {6, 7, 2, 1, 9, 5, 3, 4, 8},
-    {1, 9, 8, 3, 4, 2, 5, 6, 7},
+    {1, 9, 8, 3, 4, 2, 5, 6, 7},      //full sudoku board
     {8, 5, 9, 7, 6, 1, 4, 2, 3},
     {4, 2, 6, 8, 5, 3, 7, 9, 1},
     {7, 1, 3, 9, 2, 4, 8, 5, 6},
@@ -15,63 +15,63 @@ int grid[9][9] =
     {2, 8, 7, 4, 1, 9, 6, 3, 5},
     {3, 4, 5, 2, 8, 6, 1, 7, 9}
 };
-void welcome()
+void welcome()          //shows welcome message
 {
-    cout << "\033[34m Welcome to Sudoku! \033[0m \n";
+    cout << "\033[34m Welcome to Sudoku! \033[0m \n";          
     cout << "\033[34m Fill the empty cells (shown as 0).\033[0m";
-    cout << endl<<"First cell address is row , column = 0,0 \033[0m" << endl;
+    cout << endl << "First cell address is row , column = 0,0 \033[0m" << endl;
 }
-void display() {
-    cout << "Choose the action you want to perform:"<<endl;
-    cout << endl<<"1 : Enter numbers";
-    cout <<endl<< "2 : Get hints";
-    cout << endl<<"3 : Check board";
-    cout << endl<<"4 : Solve the puzzle";
-    cout << endl<<"5 : Quit.";
-    cout << endl << "Otion: ";
+void display() {                                        //displays options
+    cout << "Choose the action you want to perform:" << endl;
+    cout << endl << "1 : Enter numbers";
+    cout << endl << "2 : Get hints";
+    cout << endl << "3 : Check board";
+    cout << endl << "4 : Solve the puzzle";
+    cout << endl << "5 : Quit.";
+    cout << endl << "Option: ";
 }
-void printgrid() {
-    for (int a = 0; a < 9; a++) {
-        for (int b = 0; b < 9; b++)
+void printgrid() {           //prints sudoku board
+    for (int a = 0; a < 9; a++) {        //a= rows
+        for (int b = 0; b < 9; b++)     //b= columns
             cout << grid[a][b] << " ";
         cout << endl;
     }
 }
 void addRandomZeros(int count) {
-    while (count > 0) {
-        int r = rand() % 9;
-        int c = rand() % 9;
-        if (grid[r][c] != 0) {
-            grid[r][c] = 0;
+    while (count > 0) {            //adds random empty spaces in the sudoku board
+        int r = rand() % 9;       //selects a random row
+        int c = rand() % 9;        //selects a random column
+        if (grid[r][c] != 0) {      //checks if that cell location is not empty
+            grid[r][c] = 0;            //makes it empty(0)
             count--;
         }
     }
 }
-void copyGrid(int src[9][9], int dst[9][9]) {
+void copyGrid(int src[9][9], int dst[9][9]) {   //copy the board contents to another
     for (int i = 0; i < 9; i++)
-        for (int j = 0; j < 9; j++)
+        for (int j = 0; j < 9; j++)     
             dst[i][j] = src[i][j];
 }
-bool findEmptyCell(int g[9][9], int& r, int& c) {
-    for (r = 0; r < 9; r++)
-        for (c = 0; c < 9; c++)
-            if (g[r][c] == 0)
-                return true;
-    return false;
+bool findEmptyCell(int g[9][9], int& r, int& c) { //find empty cells
+    for (r = 0; r < 9; r++)          //check row
+        for (c = 0; c < 9; c++)       //check column
+            if (g[r][c] == 0)       //check if both row column (cell) = 0
+                return true;         //return true if empty
+    return false;                  //return false otherwise
 }
-bool isValidMoveLocal(int g[9][9], int r, int c, int num) {
+bool isValidMoveLocal(int g[9][9], int r, int c, int num) { //checks if user made correct move
     for (int x = 0; x < 9; x++)
-        if (g[r][x] == num || g[x][c] == num)
+        if (g[r][x] == num || g[x][c] == num)    //check row and column for the number
             return false;
-    int sr = r - r % 3;
+    int sr = r - r % 3;     //checks 3x3 box
     int sc = c - c % 3;
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)        //for 3x3 box
         for (int j = 0; j < 3; j++)
-            if (g[sr + i][sc + j] == num)
+            if (g[sr + i][sc + j] == num)   
                 return false;
     return true;
 }
-bool solveLocal(int g[9][9]) {
+bool solveLocal(int g[9][9]) {       //a local solver to be used for hint function
     int r, c;
     if (!findEmptyCell(g, r, c))
         return true;
@@ -85,24 +85,24 @@ bool solveLocal(int g[9][9]) {
     }
     return false;
 }
-void giveHint() {
-    int solved[9][9];
-    copyGrid(grid, solved);
-    if (!solveLocal(solved)) {
+void giveHint() {       //gives a random hint
+    int solved[9][9];   
+    copyGrid(grid, solved);    
+    if (!solveLocal(solved)) {   
         cout << "Cannot give hint.\n";
         return;
     }
     while (true) {
         int r = rand() % 9;
-        int c = rand() % 9;
-        if (grid[r][c] == 0) {
-            grid[r][c] = solved[r][c];
-            cout << "Hint: (" << r << ", " << c << ") = " << solved[r][c] << endl;
+        int c = rand() % 9;       //chooses a random cell through random row and column
+        if (grid[r][c] == 0) {   //makes sure that cell is empty
+            grid[r][c] = solved[r][c];        //confirms that hint is correct as in solved board
+            cout << "Hint: (" << r << ", " << c << ") = " << solved[r][c] << endl;   //gives hint
             break;
         }
     }
 }
-bool isvalidmove(int r, int c, int num) {
+bool isvalidmove(int r, int c, int num) {  //checks if user move is valid
     if (grid[r][c] != 0) return false;
     for (int x = 0; x < 9; x++)
         if (grid[r][x] == num || grid[x][c] == num)
@@ -115,14 +115,14 @@ bool isvalidmove(int r, int c, int num) {
                 return false;
     return true;
 }
-bool findEmpty(int& r, int& c) {
+bool findEmpty(int& r, int& c) {    //finds empty cells
     for (r = 0; r < 9; r++)
         for (c = 0; c < 9; c++)
             if (grid[r][c] == 0)
                 return true;
     return false;
 }
-bool solveSudoku() {
+bool solveSudoku() {    //solves the sudoku board
     int r, c;
     if (!findEmpty(r, c))
         return true;
@@ -136,8 +136,8 @@ bool solveSudoku() {
     }
     return false;
 }
-bool isValidSudoku(int a[9][9]) {
-    for (int r = 0; r < 9; r++)
+bool isValidSudoku(int a[9][9]) {  //check if board follows sudoku rules
+    for (int r = 0; r < 9; r++)    //check for rows
     {
         for (int c = 0; c < 9; c++)
         {
@@ -150,7 +150,7 @@ bool isValidSudoku(int a[9][9]) {
             }
         }
     }
-    for (int c = 0; c < 9; c++)
+    for (int c = 0; c < 9; c++)   //check for columns
     {
         for (int r = 0; r < 9; r++)
         {
@@ -163,7 +163,7 @@ bool isValidSudoku(int a[9][9]) {
             }
         }
     }
-    for (int br = 0; br < 9; br += 3)
+    for (int br = 0; br < 9; br += 3)  //check for 3x3 boxes
     {
         for (int bc = 0; bc < 9; bc += 3)
         {
@@ -171,9 +171,9 @@ bool isValidSudoku(int a[9][9]) {
             {
                 for (int c = 0; c < 3; c++) {
 
-                    if (a[br + r][bc + c] != 0) 
+                    if (a[br + r][bc + c] != 0)
                     {
-                        for (int r2 = r; r2 < 3; r2++) 
+                        for (int r2 = r; r2 < 3; r2++)
                         {
                             for (int c2 = (r2 == r ? c + 1 : 0); c2 < 3; c2++)
                             {
@@ -187,18 +187,19 @@ bool isValidSudoku(int a[9][9]) {
     }
     return true;
 }
-int main()
+int main()     //main function
 {
-    auto gameStart = chrono::high_resolution_clock::now();
-    int score = 0, choice;
-    welcome();
-    srand(time(0));
-    addRandomZeros(30);
-    printgrid();
-    while (true) {
-        display();
-        cin >> choice;
-        if (choice == 1) {
+    auto gameStart = chrono::high_resolution_clock::now();   //starts timer count
+    int score = 0, choice;     //initializes score as zero  
+    welcome();     //displays welcome message
+    srand(time(0));     //for randomness
+    addRandomZeros(30);  //adds 30 random empty spaces in board
+    printgrid();    //prints the board with 30 empty spaces
+    cout << "\n score= " << score<<endl;
+    while (true) {       //infinite loop until board is solved or user quits ( break statements)
+        display();        //shows display
+        cin >> choice;      //stores user's choice
+        if (choice == 1) {     //choice 1 = enter number
             int r, c, num;
             cout << "\nEnter row:  ";
             cin >> r;
@@ -206,88 +207,87 @@ int main()
             cin >> c;
             cout << "\nEnter number:  ";
             cin >> num;
-            if (isvalidmove(r, c, num)) {
-                grid[r][c] = num;
-                score += 10;
-                cout << "\n\033[32m The number you enetered is Correct.\033[0m\n";
+            if (isvalidmove(r, c, num)) {   //checks if user entered correct number
+                grid[r][c] = num;            //updates board with correct number
+                score += 10;                  // increases score
+                cout << "\n\033[32m The number you entered is Correct.\033[0m\n";
             }
             else {
-                score -= 5;
+                score -= 5;      //if wrong number then score decreases
                 cout << "\n\033[31m the number you entered is Incorrect.\n Try again.\033[0m \n";
             }
             if (score >= 0)
-            {
+            {        //outputs score in green for correct
                 cout << "\033[32m \nYour Score is = \033[0m" << score << endl;
-
             }
             else
-            {
+            {            //outputs score in rec for incorrect
                 cout << "\033[31m  \nYour Score is = \033[0m" << score << endl;
             }
-            printgrid();
-
+            printgrid(); 
             int rr, cc;
-            if (!findEmpty(rr, cc)) {
+            if (!findEmpty(rr, cc)) {   //if no empty cells left then program breaks
                 cout << "Puzzle completed!\n";
                 break;
             }
         }
-        else if (choice == 2) {
-            giveHint();
-            score -= 15;
+        else if (choice == 2) {   //choice 2 = hints
+            giveHint();   //gives hint
+            score -= 15;   //score decreases
             if (score >= 0)
-            {
+            {           //outputs score in green for positive
                 cout << "\033[32m \nYour Score is = \033[0m" << score << endl;
             }
             else
-            {
+            {                 //outputs score in red for negative
                 cout << "\033[31m  \nYour Score is = \033[0m" << score << endl;
             }
             printgrid();
             int rr, cc;
-            if (!findEmpty(rr, cc)) {
+            if (!findEmpty(rr, cc)) {   //if no empty cells left then program breaks
                 cout << "Puzzle completed!\n";
                 break;
             }
         }
-        else if (choice == 3) {
+        else if (choice == 3) {    //choice 3 = check board if it satisfies sudoku rules
             if (isValidSudoku(grid))
                 cout << "\033[35m Current board satisfies all rules. \033[0m\n";
             else
                 cout << "\033[31m Board violates Sudoku rules. \033[0m \n";
         }
-        else if (choice == 4) {
+        else if (choice == 4) {         //chouce 4= solve puzzle
             cout << "Solving puzzle...\n";
             if (solveSudoku()) {
                 cout << "\033[32m Puzzle solved successfully!\033[0m\n";
-                printgrid();
-                score -= 20;
+                printgrid();  //displays solved puzzle
+                score -= 20;   //score decreases
                 if (score >= 0)
-                {
+                {//outputs score in green for positive
                     cout << "\033[32m \nYour Score is = \033[0m" << score << endl;
                 }
                 else
-                {
+                {//outputs score in red for negative
                     cout << "\033[31m  \nYour Score is= \033[0m" << score << endl;
                 }
                 break;
             }
-            else {
+            else {    //if solution does not exist
                 cout << "\033[34m No solution exists.\033[0m \n";
                 break;
             }
         }
-        else if (choice == 5) {
+        else if (choice == 5) {     //choice 5 = quit.. program breaks
             cout << "You quit. Thanks for playing.";
             break;
         }
-        else cout << "Invalid choice.\n";
+        else cout << "Invalid choice.\n";  //if user enters invalid choice other than 1,2,3,4 or 5
     }
-    auto gameEnd = chrono::high_resolution_clock::now();
+    auto gameEnd = chrono::high_resolution_clock::now();          //for total time takes
     chrono::duration<double> totalTime = gameEnd - gameStart;
     int totalSeconds = (int)totalTime.count();
     int minutes = totalSeconds / 60;
     int seconds = totalSeconds % 60;
+         //shows total time taken by user in yellow
     cout << "\n\033[33m Total time spent: " << minutes << " min " << seconds << " sec\033[0m\n";
     _getch();
     return 0;
