@@ -26,3 +26,4 @@ Decrement the score by 20 and exit the loop.
 
 If the user enters choice 5:
 Display the quit message and exit the game loop.
+Show final score and total time taken
