@@ -1,8 +1,8 @@
 #include<iostream>
 #include<conio.h>
 #include<ctime>
+#include<chrono>
 using namespace std;
-
 int grid[9][9] =
 {
     {5, 3, 4, 6, 7, 8, 9, 1, 2},
@@ -15,7 +15,28 @@ int grid[9][9] =
     {2, 8, 7, 4, 1, 9, 6, 3, 5},
     {3, 4, 5, 2, 8, 6, 1, 7, 9}
 };
-
+void welcome()
+{
+    cout << "\033[34m Welcome to Sudoku! \033[0m \n";
+    cout << "\033[34m Fill the empty cells (shown as 0).\033[0m";
+    cout << endl<<"First cell address is row , column = 0,0 \033[0m" << endl;
+}
+void display() {
+    cout << "Choose the action you want to perform:"<<endl;
+    cout << endl<<"1 : Enter numbers";
+    cout <<endl<< "2 : Get hints";
+    cout << endl<<"3 : Check board";
+    cout << endl<<"4 : Solve the puzzle";
+    cout << endl<<"5 : Quit.";
+    cout << endl << "Otion: ";
+}
+void printgrid() {
+    for (int a = 0; a < 9; a++) {
+        for (int b = 0; b < 9; b++)
+            cout << grid[a][b] << " ";
+        cout << endl;
+    }
+}
 void addRandomZeros(int count) {
     while (count > 0) {
         int r = rand() % 9;
@@ -26,13 +47,11 @@ void addRandomZeros(int count) {
         }
     }
 }
-
 void copyGrid(int src[9][9], int dst[9][9]) {
     for (int i = 0; i < 9; i++)
         for (int j = 0; j < 9; j++)
             dst[i][j] = src[i][j];
 }
-
 bool findEmptyCell(int g[9][9], int& r, int& c) {
     for (r = 0; r < 9; r++)
         for (c = 0; c < 9; c++)
@@ -40,28 +59,22 @@ bool findEmptyCell(int g[9][9], int& r, int& c) {
                 return true;
     return false;
 }
-
 bool isValidMoveLocal(int g[9][9], int r, int c, int num) {
     for (int x = 0; x < 9; x++)
         if (g[r][x] == num || g[x][c] == num)
             return false;
-
     int sr = r - r % 3;
     int sc = c - c % 3;
-
     for (int i = 0; i < 3; i++)
         for (int j = 0; j < 3; j++)
             if (g[sr + i][sc + j] == num)
                 return false;
-
     return true;
 }
-
 bool solveLocal(int g[9][9]) {
     int r, c;
     if (!findEmptyCell(g, r, c))
         return true;
-
     for (int num = 1; num <= 9; num++) {
         if (isValidMoveLocal(g, r, c, num)) {
             g[r][c] = num;
@@ -72,16 +85,13 @@ bool solveLocal(int g[9][9]) {
     }
     return false;
 }
-
 void giveHint() {
     int solved[9][9];
     copyGrid(grid, solved);
-
     if (!solveLocal(solved)) {
         cout << "Cannot give hint.\n";
         return;
     }
-
     while (true) {
         int r = rand() % 9;
         int c = rand() % 9;
@@ -92,43 +102,19 @@ void giveHint() {
         }
     }
 }
-
-void display() {
-    cout << "Choose the action you want to perform:\n";
-    cout << "1 : Enter numbers\n";
-    cout << "2 : Get hints\n";
-    cout << "3 : Check board\n";
-    cout << "4 : Solve the puzzle\n";
-    cout << "5 : Quit.\n";
-}
-
-void printgrid() {
-    for (int a = 0; a < 9; a++) {
-        for (int b = 0; b < 9; b++)
-            cout << grid[a][b] << " ";
-        cout << endl;
-    }
-}
-
-
 bool isvalidmove(int r, int c, int num) {
     if (grid[r][c] != 0) return false;
-
     for (int x = 0; x < 9; x++)
         if (grid[r][x] == num || grid[x][c] == num)
             return false;
-
     int sr = r - r % 3;
     int sc = c - c % 3;
-
     for (int i = 0; i < 3; i++)
         for (int j = 0; j < 3; j++)
             if (grid[sr + i][sc + j] == num)
                 return false;
-
     return true;
 }
-
 bool findEmpty(int& r, int& c) {
     for (r = 0; r < 9; r++)
         for (c = 0; c < 9; c++)
@@ -136,13 +122,10 @@ bool findEmpty(int& r, int& c) {
                 return true;
     return false;
 }
-
 bool solveSudoku() {
     int r, c;
-
     if (!findEmpty(r, c))
         return true;
-
     for (int num = 1; num <= 9; num++) {
         if (isvalidmove(r, c, num)) {
             grid[r][c] = num;
@@ -153,49 +136,68 @@ bool solveSudoku() {
     }
     return false;
 }
-
 bool isValidSudoku(int a[9][9]) {
     for (int r = 0; r < 9; r++)
+    {
         for (int c = 0; c < 9; c++)
+        {
             if (a[r][c] != 0)
+            {
                 for (int k = c + 1; k < 9; k++)
+                {
                     if (a[r][c] == a[r][k]) return false;
-
+                }
+            }
+        }
+    }
     for (int c = 0; c < 9; c++)
+    {
         for (int r = 0; r < 9; r++)
+        {
             if (a[r][c] != 0)
+            {
                 for (int k = r + 1; k < 9; k++)
+                {
                     if (a[r][c] == a[k][c]) return false;
-
+                }
+            }
+        }
+    }
     for (int br = 0; br < 9; br += 3)
+    {
         for (int bc = 0; bc < 9; bc += 3)
+        {
             for (int r = 0; r < 3; r++)
-                for (int c = 0; c < 3; c++)
-                    if (a[br + r][bc + c] != 0)
-                        for (int r2 = r; r2 < 3; r2++)
-                            for (int c2 = (r2 == r ? c + 1 : 0); c2 < 3; c2++)
-                                if (a[br + r][bc + c] == a[br + r2][bc + c2]) return false;
+            {
+                for (int c = 0; c < 3; c++) {
 
+                    if (a[br + r][bc + c] != 0) 
+                    {
+                        for (int r2 = r; r2 < 3; r2++) 
+                        {
+                            for (int c2 = (r2 == r ? c + 1 : 0); c2 < 3; c2++)
+                            {
+                                if (a[br + r][bc + c] == a[br + r2][bc + c2]) return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     return true;
 }
-
 int main()
 {
+    auto gameStart = chrono::high_resolution_clock::now();
     int score = 0, choice;
-
-    cout << "Welcome to Sudoku!\n";
-    cout << "Fill the empty cells (shown as 0).\n\n";
-    cout << "\nFirst cell address is row , column = 0,0\n";
-
+    welcome();
     srand(time(0));
     addRandomZeros(30);
-
     printgrid();
-
     while (true) {
         display();
         cin >> choice;
-
         if (choice == 1) {
             int r, c, num;
             cout << "\nEnter row:  ";
@@ -204,43 +206,76 @@ int main()
             cin >> c;
             cout << "\nEnter number:  ";
             cin >> num;
-
             if (isvalidmove(r, c, num)) {
                 grid[r][c] = num;
                 score += 10;
-                cout << "\nCorrect.\n";
+                cout << "\n\033[32m The number you enetered is Correct.\033[0m\n";
             }
             else {
                 score -= 5;
-                cout << "\nIncorrect. Try again.\n";
+                cout << "\n\033[31m the number you entered is Incorrect.\n Try again.\033[0m \n";
             }
-            cout << "Score = " << score << endl;
+            if (score >= 0)
+            {
+                cout << "\033[32m \nYour Score is = \033[0m" << score << endl;
+
+            }
+            else
+            {
+                cout << "\033[31m  \nYour Score is = \033[0m" << score << endl;
+            }
             printgrid();
+
+            int rr, cc;
+            if (!findEmpty(rr, cc)) {
+                cout << "Puzzle completed!\n";
+                break;
+            }
         }
         else if (choice == 2) {
             giveHint();
             score -= 15;
+            if (score >= 0)
+            {
+                cout << "\033[32m \nYour Score is = \033[0m" << score << endl;
+            }
+            else
+            {
+                cout << "\033[31m  \nYour Score is = \033[0m" << score << endl;
+            }
             printgrid();
+            int rr, cc;
+            if (!findEmpty(rr, cc)) {
+                cout << "Puzzle completed!\n";
+                break;
+            }
         }
         else if (choice == 3) {
             if (isValidSudoku(grid))
-                cout << "Current board satisfies all rules.\n";
+                cout << "\033[35m Current board satisfies all rules. \033[0m\n";
             else
-                cout << "Board violates Sudoku rules.\n";
+                cout << "\033[31m Board violates Sudoku rules. \033[0m \n";
         }
         else if (choice == 4) {
             cout << "Solving puzzle...\n";
-
             if (solveSudoku()) {
-                cout << "Puzzle solved successfully!\n";
+                cout << "\033[32m Puzzle solved successfully!\033[0m\n";
                 printgrid();
                 score -= 20;
-                cout << "Score = " << score << endl;
+                if (score >= 0)
+                {
+                    cout << "\033[32m \nYour Score is = \033[0m" << score << endl;
+                }
+                else
+                {
+                    cout << "\033[31m  \nYour Score is= \033[0m" << score << endl;
+                }
                 break;
             }
-            else { cout << "No solution exists.\n";
-            break;
-               }
+            else {
+                cout << "\033[34m No solution exists.\033[0m \n";
+                break;
+            }
         }
         else if (choice == 5) {
             cout << "You quit. Thanks for playing.";
@@ -248,7 +283,12 @@ int main()
         }
         else cout << "Invalid choice.\n";
     }
-
+    auto gameEnd = chrono::high_resolution_clock::now();
+    chrono::duration<double> totalTime = gameEnd - gameStart;
+    int totalSeconds = (int)totalTime.count();
+    int minutes = totalSeconds / 60;
+    int seconds = totalSeconds % 60;
+    cout << "\n\033[33m Total time spent: " << minutes << " min " << seconds << " sec\033[0m\n";
     _getch();
     return 0;
 }
